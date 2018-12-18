@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 
     private RecyclerView mRecyclerView;
     private ForecastAdapter mForecastAdapter;
+    private String location;
 
     private TextView mErrorMessageDisplay;
 
@@ -155,6 +156,54 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        /* Use AppCompatActivity's method getMenuInflater to get a handle on the menu inflater */
+        MenuInflater inflater = getMenuInflater();
+        /* Use the inflater's inflate method to inflate our menu layout to this menu */
+        inflater.inflate(R.menu.forecast, menu);
+        /* Return true so that the menu is displayed in the Toolbar */
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_refresh) {
+            mForecastAdapter.setWeatherData(null);
+            loadWeatherData();
+            return true;
+        }
+        // Done (2) Launch the map when the map menu item is clicked
+        if (id == R.id.action_open_map) {
+        openWeatherMap();
+            return true;
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void openWeatherMap() {
+       // Use Uri.Builder with the appropriate scheme and query to form the Uri for the address
+        Uri.Builder addressUriBuilder = new Uri.Builder();
+        addressUriBuilder.scheme("geo")
+                .path("0,0")
+                .query(location);
+        Uri locationUri = addressUriBuilder.build();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+
+        // Set the data of the Intent to the Uri passed into this method
+        intent.setData(locationUri);
+
+        //Verify that this Intent can be launched and then call startActivity
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+
+        }
+    }
+
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         @Override
@@ -199,30 +248,5 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
                 showErrorMessage();
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        /* Use AppCompatActivity's method getMenuInflater to get a handle on the menu inflater */
-        MenuInflater inflater = getMenuInflater();
-        /* Use the inflater's inflate method to inflate our menu layout to this menu */
-        inflater.inflate(R.menu.forecast, menu);
-        /* Return true so that the menu is displayed in the Toolbar */
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_refresh) {
-            mForecastAdapter.setWeatherData(null);
-            loadWeatherData();
-            return true;
-        }
-
-        // TODO (2) Launch the map when the map menu item is clicked
-
-        return super.onOptionsItemSelected(item);
     }
 }
