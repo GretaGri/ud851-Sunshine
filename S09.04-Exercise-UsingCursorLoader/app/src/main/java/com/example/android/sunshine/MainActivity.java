@@ -259,7 +259,7 @@ public static final String[] MAIN_FORECAST_PROJECTION = {
         //      Done (30) Smooth scroll the RecyclerView to mPosition
         mRecyclerView.smoothScrollToPosition(mPosition);
         //      Done (31) If the Cursor's size is not equal to 0, call showWeatherDataView
-        if (cursor.getCount() == 0){
+        if (cursor.getCount() != 0){
             showWeatherDataView();
         }
 
