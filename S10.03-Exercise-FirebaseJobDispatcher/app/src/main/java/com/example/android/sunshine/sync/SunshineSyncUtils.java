@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.android.sunshine.data.WeatherContract;
 import com.firebase.jobdispatcher.Driver;
@@ -34,9 +35,9 @@ import java.util.concurrent.TimeUnit;
 public class SunshineSyncUtils {
 
 //  Done (10) Add constant values to sync Sunshine every 3 - 4 hours
-    private static final int SYNC_INTERVAL_MINUTES = 180;
+    private static final int SYNC_INTERVAL_MINUTES = 1;
     private static final int SYNC_INTERVAL_SECONDS = (int)(TimeUnit.MINUTES.toSeconds(SYNC_INTERVAL_MINUTES));
-    private static final int SYNC_FLEXTIME_SECONDS = 360;
+    private static final int SYNC_FLEXTIME_SECONDS = 120;
 
     private static boolean sInitialized;
 
@@ -44,7 +45,7 @@ public class SunshineSyncUtils {
     private static final String SYNC_WEATHER_TAG = "synchronizing_weather";
 
 //  Done (12) Create a method to schedule our periodic weather sync
-    synchronized public static void sheduleSyncWeather (Context context){
+    synchronized public static void scheduleSyncWeather (Context context){
         Driver driver = new GooglePlayDriver(context);
 
         FirebaseJobDispatcher firebaseJobDispatcher = new FirebaseJobDispatcher(driver);
@@ -60,6 +61,7 @@ public class SunshineSyncUtils {
                 .build();
 
         firebaseJobDispatcher.schedule(constraintSyncWeatherJob);
+        Log.d ("TAG","firebaseJobDispatcher is scheduled");
     }
     /**
      * Creates periodic sync tasks and checks to see if an immediate sync is required. If an
@@ -79,7 +81,8 @@ public class SunshineSyncUtils {
         sInitialized = true;
 
 //      Done (13) Call the method you created to schedule a periodic weather sync
-        sheduleSyncWeather(context);
+        scheduleSyncWeather(context);
+        Log.d ("TAG","scheduleSyncWeather is called");
         /*
          * We need to check to see if our ContentProvider has data to display in our forecast
          * list. However, performing a query on the main thread is a bad idea as this may
