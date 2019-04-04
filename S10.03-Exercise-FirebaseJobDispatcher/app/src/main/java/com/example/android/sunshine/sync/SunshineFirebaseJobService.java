@@ -27,7 +27,7 @@ import static com.example.android.sunshine.sync.SunshineSyncTask.syncWeather;
 // Done (3) Add a class called SunshineFirebaseJobService that extends jobdispatcher.JobService
 public class SunshineFirebaseJobService extends JobService{
     //  Done (4) Declare an ASyncTask field called mFetchWeatherTask
-        AsyncTask mFetchWeatherTask;
+        private static AsyncTask mFetchWeatherTask;
     //  Done (5) Override onStartJob and within it, spawn off a separate ASyncTask to sync weather data
     //  Done (6) Once the weather data is sync'd, call jobFinished with the appropriate arguments
     @Override
@@ -35,9 +35,9 @@ public class SunshineFirebaseJobService extends JobService{
        mFetchWeatherTask = new AsyncTask() {
            @Override
            protected Object doInBackground(Object[] objects) {
-               SunshineSyncTask.syncWeather(this);
+               SunshineSyncTask.syncWeather(getApplicationContext());
                jobFinished(job,false);
-               return true;
+               return null;
            }
        };
 
