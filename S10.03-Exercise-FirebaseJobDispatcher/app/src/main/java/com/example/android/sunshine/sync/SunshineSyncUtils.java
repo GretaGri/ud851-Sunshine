@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.android.sunshine.data.WeatherContract;
+import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -35,9 +36,9 @@ import java.util.concurrent.TimeUnit;
 public class SunshineSyncUtils {
 
 //  Done (10) Add constant values to sync Sunshine every 3 - 4 hours
-    private static final int SYNC_INTERVAL_MINUTES = 1;
-    private static final int SYNC_INTERVAL_SECONDS = (int)(TimeUnit.MINUTES.toSeconds(SYNC_INTERVAL_MINUTES));
-    private static final int SYNC_FLEXTIME_SECONDS = 120;
+    private static final int SYNC_INTERVAL_HOURS = 3;
+    private static final int SYNC_INTERVAL_SECONDS = (int)(TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_HOURS));
+    private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS/3;
 
     private static boolean sInitialized;
 
@@ -45,7 +46,7 @@ public class SunshineSyncUtils {
     private static final String SYNC_WEATHER_TAG = "synchronizing_weather";
 
 //  Done (12) Create a method to schedule our periodic weather sync
-    synchronized public static void scheduleSyncWeather (Context context){
+    synchronized static void scheduleSyncWeather (Context context){
         Driver driver = new GooglePlayDriver(context);
 
         FirebaseJobDispatcher firebaseJobDispatcher = new FirebaseJobDispatcher(driver);
@@ -53,6 +54,13 @@ public class SunshineSyncUtils {
         Job constraintSyncWeatherJob = firebaseJobDispatcher.newJobBuilder()
                 .setService(SunshineFirebaseJobService.class)
                 .setTag(SYNC_WEATHER_TAG)
+                /*
+                 * Network constraints on which this Job should run. We choose to run on any
+                 * network, but you can also choose to run only on un-metered networks or when the
+                 * device is charging. It might be a good idea to include a preference for this,
+                 * as some users may not want to download any data on their mobile plan. ($$$)
+                 */
+                .setConstraints(Constraint.ON_ANY_NETWORK)
                 .setLifetime(Lifetime.FOREVER)
                 .setTrigger(Trigger.executionWindow(SYNC_INTERVAL_SECONDS,
                         SYNC_INTERVAL_SECONDS+ SYNC_FLEXTIME_SECONDS))
