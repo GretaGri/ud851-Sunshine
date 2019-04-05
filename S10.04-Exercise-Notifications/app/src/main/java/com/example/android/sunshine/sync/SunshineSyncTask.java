@@ -18,12 +18,19 @@ package com.example.android.sunshine.sync;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.CheckBoxPreference;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
+import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.NetworkUtils;
+import com.example.android.sunshine.utilities.NotificationUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
 
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 public class SunshineSyncTask {
 
@@ -73,12 +80,20 @@ public class SunshineSyncTask {
                         WeatherContract.WeatherEntry.CONTENT_URI,
                         weatherValues);
 
-//              TODO (13) Check if notifications are enabled
+//              Done (13) Check if notifications are enabled
+                SharedPreferences prefs = PreferenceManager
+                        .getDefaultSharedPreferences(context);
+                Boolean checkboxPreference = prefs.getBoolean("shownotifications", true);
 
-//              TODO (14) Check if a day has passed since the last notification
 
-//              TODO (15) If more than a day have passed and notifications are enabled, notify the user
+//              Done (14) Check if a day has passed since the last notification
+                    Long timeSinceLastNotification = SunshinePreferences.getEllapsedTimeSinceLastNotification(context);
 
+//              Done (15) If more than a day have passed and notifications are enabled, notify the user
+                if (checkboxPreference && TimeUnit.MILLISECONDS.toMinutes(timeSinceLastNotification) > 1){
+                    Log.d ("LOG", "Notify user gets called");
+                    NotificationUtils.notifyUserOfNewWeather(context);
+                }
             /* If the code reaches this point, we have successfully performed our sync */
 
             }
