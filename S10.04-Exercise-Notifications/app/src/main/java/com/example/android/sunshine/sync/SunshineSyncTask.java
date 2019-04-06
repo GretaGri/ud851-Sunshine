@@ -21,8 +21,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.CheckBoxPreference;
 import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
 import android.util.Log;
 
+import com.example.android.sunshine.R;
 import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.NetworkUtils;
@@ -83,14 +85,17 @@ public class SunshineSyncTask {
 //              Done (13) Check if notifications are enabled
                 SharedPreferences prefs = PreferenceManager
                         .getDefaultSharedPreferences(context);
-                Boolean checkboxPreference = prefs.getBoolean("shownotifications", true);
+                Boolean checkboxPreference = prefs.getBoolean(context.getResources().getString(R.string.notif_key),
+                        context.getResources().getBoolean(R.bool.isShowingNotificationsByDefault));
 
 
 //              Done (14) Check if a day has passed since the last notification
                     Long timeSinceLastNotification = SunshinePreferences.getEllapsedTimeSinceLastNotification(context);
 
 //              Done (15) If more than a day have passed and notifications are enabled, notify the user
-                if (checkboxPreference && TimeUnit.MILLISECONDS.toMinutes(timeSinceLastNotification) > 1){
+                if (checkboxPreference && TimeUnit.MILLISECONDS.toHours(timeSinceLastNotification) >= 24){
+                    //or to compare time since last notification and one day it could be written like this:
+                    // timeSinceLastNotification >= DateUtils.DAY_IN_MILLIS
                     Log.d ("LOG", "Notify user gets called");
                     NotificationUtils.notifyUserOfNewWeather(context);
                 }

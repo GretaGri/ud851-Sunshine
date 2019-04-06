@@ -44,7 +44,7 @@ public class NotificationUtils {
 
 //  Done (1) Create a constant int value to identify the notification
 private static final int WEATHER_NOTIFICATION_ID = 1409;
-
+   private static Uri todaysWeatherUri;
     /**
      * Constructs and displays a notification for the newly updated weather for today.
      *
@@ -53,7 +53,7 @@ private static final int WEATHER_NOTIFICATION_ID = 1409;
     public static void notifyUserOfNewWeather(Context context) {
 
         /* Build the URI for today's weather in order to show up to date data in notification */
-        Uri todaysWeatherUri = WeatherContract.WeatherEntry
+        todaysWeatherUri = WeatherContract.WeatherEntry
                 .buildWeatherUriWithDate(SunshineDateUtils.normalizeDate(System.currentTimeMillis()));
 
         /*
@@ -95,10 +95,18 @@ private static final int WEATHER_NOTIFICATION_ID = 1409;
                     .getSmallArtResourceIdForWeatherCondition(weatherId);
 
 //          Done (2) Use NotificationCompat.Builder to begin building the notification
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                    .setSmallIcon(smallArtResourceId)
+                    .setLargeIcon(largeIcon)
+                    .setContentTitle(notificationTitle)
+                    .setAutoCancel(true)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setDefaults(Notification.DEFAULT_VIBRATE)
+                    .setContentText(notificationText);
 
 //          Done (3) Create an Intent with the proper URI to start the DetailActivity
             Intent intentNotificationToDetailActivity = new Intent(context, DetailActivity.class);
+            intentNotificationToDetailActivity.setData(todaysWeatherUri);
 
 //          Done (4) Use TaskStackBuilder to create the proper PendingIntent
             Intent intent = new Intent (context, MainActivity.class);
@@ -110,14 +118,8 @@ private static final int WEATHER_NOTIFICATION_ID = 1409;
 
 
 //          Done (5) Set the content Intent of the NotificationBuilder
-            builder.setContentIntent(pendingIntent)
-                    .setSmallIcon(smallArtResourceId)
-                    .setLargeIcon(largeIcon)
-                    .setContentTitle(notificationTitle)
-                    .setAutoCancel(true)
-                    .setPriority(Notification.PRIORITY_MAX)
-                    .setDefaults(Notification.DEFAULT_VIBRATE)
-                    .setContentText(notificationText);
+            builder.setContentIntent(pendingIntent);
+
 
 //          Done (6) Get a reference to the NotificationManager
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
